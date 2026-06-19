@@ -1,0 +1,81 @@
+#include <Servo.h>
+
+#define TRIG_PIN 6
+#define ECHO_PIN 5
+#define BUZZER 2
+#define SERVO_PIN 4
+
+#define MOTOR1 10
+#define MOTOR2 11
+
+Servo gateServo;
+
+long duration;
+float distance;
+
+void setup() {
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  pinMode(BUZZER, OUTPUT);
+
+  pinMode(MOTOR1, OUTPUT);
+  pinMode(MOTOR2, OUTPUT);
+
+  gateServo.attach(SERVO_PIN);
+  gateServo.write(0);
+
+  Serial.begin(9600);
+}
+
+float getDistance() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+
+  digitalWrite(TRIG_PIN, LOW);
+
+  duration = pulseIn(ECHO_PIN, HIGH);
+
+  return duration * 0.034 / 2;
+}
+
+void moveForward() {
+  digitalWrite(MOTOR1, HIGH);
+  digitalWrite(MOTOR2, LOW);
+}
+
+void stopRobot() {
+  digitalWrite(MOTOR1, LOW);
+  digitalWrite(MOTOR2, LOW);
+}
+
+void fillPothole() {
+  gateServo.write(90);
+  delay(3000);
+
+  gateServo.write(0);
+}
+
+void loop() {
+
+  distance = getDistance();
+
+  if (distance > 8) {
+
+    stopRobot();
+
+    digitalWrite(BUZZER, HIGH);
+
+    fillPothole();
+
+    digitalWrite(BUZZER, LOW);
+
+  } else {
+
+    moveForward();
+  }
+
+  delay(200);
+}
